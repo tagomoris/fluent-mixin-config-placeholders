@@ -61,7 +61,7 @@ module Fluent
               c[k] = replace(map, v)
             end
           end
-          c.elements.each{|e| check_element(e)}
+          c.elements.each{|e| check_element(map,e)}
         end
 
         check_element(mapping,conf)

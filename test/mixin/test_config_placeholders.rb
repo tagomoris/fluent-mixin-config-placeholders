@@ -129,4 +129,31 @@ path /path/to/file.__UUID_HOSTNAME__.out
     assert_match PATH_CHECK_T_REGEXP, p2.path
     assert_match PATH_CHECK_T_REGEXP2, p3.path
   end
+
+  def test_nested
+    conf = %[
+hostname test.host.local
+tag test.out
+path /path/to/file.log
+<config ${hostname}>
+  var val1.${uuid:hostname}
+  <group>
+    field value.1.${uuid:hostname}
+  </group>
+  <group>
+    field value.2.__UUID_HOSTNAME__
+  </group>
+</config>
+]
+    require 'uuidtools'
+    uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "test.host.local").to_s
+
+    p1, p2, p3 = create_plugin_instances(conf)
+    assert_equal "config", p3.conf.elements.first.name
+    assert_equal "test.host.local", p3.conf.elements.first.arg
+    assert_equal "val1." + uuid, p3.conf.elements.first['var']
+    assert_equal "group", p3.conf.elements.first.elements[0].name
+    assert_equal "value.1." + uuid, p3.conf.elements.first.elements[0]['field']
+    assert_equal "value.2." + uuid, p3.conf.elements.first.elements[1]['field']
+  end
 end
