@@ -10,7 +10,7 @@ module Fluent
 
       # ${uuid} or ${uuid:random} , __UUID__ or __UUID_RANDOM__
       # UUIDTools::UUID.random_create
-      # => #<UUID:0x19013a UUID:984265dc-4200-4f02-ae70-fe4f48964159>      
+      # => #<UUID:0x19013a UUID:984265dc-4200-4f02-ae70-fe4f48964159>
 
       # ${uuid:hostname} , __UUID_HOSTNAME__
       # UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "www.widgets.com")
