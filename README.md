@@ -1,29 +1,42 @@
-# Fluent::Mixin::Config::Placeholders
+# Fluent::Mixin::ConfigPlaceholders
 
-TODO: Write a gem description
+Fluent::Mixin::ConfigPlaceHolders provide some placeholders to fluentd plugins that includes this mix-in. Placeholders below are expanded in 'super' of including plugin's #configure method.
 
-## Installation
+Available placeholders are:
 
-Add this line to your application's Gemfile:
-
-    gem 'fluent-mixin-config-placeholders'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install fluent-mixin-config-placeholders
+* hostname (${hostname} or \_\_HOSTNAME\_\_)
+  * you can specify hostname string explicitly on 'hostname' parameter
+* random uuid (${uuid}, ${uuid:random}, \_\_UUID\_\_ or \_\_UUID\_RANDOM\_\_)
+* hostname string based uuid (${uuid:hostname} or \_\_UUID\_HOSTNAME\_\_)
+* timestamp based uuid (${uuid:timestamp} or \_\_UUID\_TIMESTAMP\_\_)
 
 ## Usage
 
-TODO: Write usage instructions here
+In plugin (both of input and output), just include mixin.
 
-## Contributing
+    class FooInput < Fluent::Input
+      Fluent::Plugin.register_input('foo', self)
+    
+      config_param :tag, :string
+      
+      include Fluent::Mixin::ConfigPlaceholders
+    
+      def configure(conf)
+        super # MUST call 'super' at first!
+        
+        @tag #=> here, you can get string replaced '${hostname}' into actual hostname
+      end
+      
+      # ...
+    end
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+You can use this feature for tags for each fluentd node, paths for remote storage services like /root/${hostname}/access_log or non-race-condition paths like /files/${uuid:random}.
+
+## AUTHORS
+
+* TAGOMORI Satoshi <tagomoris@gmail.com>
+
+## LICENSE
+
+* Copyright: Copyright (c) 2012- tagomoris
+* License: Apache License, Version 2.0
