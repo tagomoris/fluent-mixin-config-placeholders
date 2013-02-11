@@ -6,17 +6,17 @@ module Fluent
     module ConfigPlaceholders
       attr_accessor :hostname
 
-      # ${hostname}, __HOSTNAME__
+      # ${hostname}, %{hostname}, __HOSTNAME__
 
-      # ${uuid} or ${uuid:random} , __UUID__ or __UUID_RANDOM__
+      # ${uuid} or ${uuid:random} , %{uuid} or %{uuid:random} __UUID__ or __UUID_RANDOM__
       # UUIDTools::UUID.random_create
       # => #<UUID:0x19013a UUID:984265dc-4200-4f02-ae70-fe4f48964159>
 
-      # ${uuid:hostname} , __UUID_HOSTNAME__
+      # ${uuid:hostname} , %{uuid:hostname} , __UUID_HOSTNAME__
       # UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "www.widgets.com")
       # => #<UUID:0x2a0116 UUID:21f7f8de-8051-5b89-8680-0195ef798b6a>
 
-      # ${uuid:timestamp} , __UUID_TIMESTAMP__
+      # ${uuid:timestamp} , %{uuid:timestamp} , __UUID_TIMESTAMP__
       # UUIDTools::UUID.timestamp_create
       # => #<UUID:0x2adfdc UUID:64a5189c-25b3-11da-a97b-00c04fd430c8>
 
@@ -42,14 +42,19 @@ module Fluent
 
         mapping = {
           '${hostname}'  => lambda{ hostname },
+          '%{hostname}'  => lambda{ hostname },
           '__HOSTNAME__' => lambda{ hostname },
           '${uuid}'         => lambda{ uuid_random() },
+          '%{uuid}'         => lambda{ uuid_random() },
           '__UUID__'        => lambda{ uuid_random() },
           '${uuid:random}'  => lambda{ uuid_random() },
+          '%{uuid:random}'  => lambda{ uuid_random() },
           '__UUID_RANDOM__' => lambda{ uuid_random() },
           '${uuid:hostname}'  => lambda { uuid_hostname(hostname) },
+          '%{uuid:hostname}'  => lambda { uuid_hostname(hostname) },
           '__UUID_HOSTNAME__' => lambda { uuid_hostname(hostname) },
           '${uuid:timestamp}'  => lambda { uuid_timestamp() },
+          '%{uuid:timestamp}'  => lambda { uuid_timestamp() },
           '__UUID_TIMESTAMP__' => lambda { uuid_timestamp() },
         }
 
