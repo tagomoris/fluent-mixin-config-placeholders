@@ -31,18 +31,33 @@ path POSPOSPOS ${hostname} MOGEMOGE
   end
 
   def test_hostname
-    conf = %[
+    conf1 = %[
 hostname testing.local
 tag out.${hostname}
 path /path/to/file.__HOSTNAME__.txt
 ]
-    p1, p2, p3 = create_plugin_instances(conf)
+    p1, p2, p3 = create_plugin_instances(conf1)
 
     assert_equal 'out.${hostname}', p1.tag
     assert_equal 'out.testing.local', p2.tag
     assert_equal 'out.testing.local', p3.tag
 
     assert_equal '/path/to/file.__HOSTNAME__.txt', p1.path
+    assert_equal '/path/to/file.testing.local.txt', p2.path
+    assert_equal '/PATH/TO/FILE.TESTING.LOCAL.TXT', p3.path
+
+    conf2 = %[
+hostname testing.local
+tag out.%{hostname}
+path /path/to/file.%{hostname}.txt
+]
+    p1, p2, p3 = create_plugin_instances(conf2)
+
+    assert_equal 'out.%{hostname}', p1.tag
+    assert_equal 'out.testing.local', p2.tag
+    assert_equal 'out.testing.local', p3.tag
+
+    assert_equal '/path/to/file.%{hostname}.txt', p1.path
     assert_equal '/path/to/file.testing.local.txt', p2.path
     assert_equal '/PATH/TO/FILE.TESTING.LOCAL.TXT', p3.path
   end
@@ -82,37 +97,67 @@ path /path/to/file.__UUID__.txt
     p1, p2, p3 = create_plugin_instances(conf4)
     assert_match PATH_CHECK_REGEXP, p2.path
     assert_match PATH_CHECK_REGEXP2, p3.path
+
+    conf5 = %[
+tag test.out
+path /path/to/file.%{uuid}.txt
+]
+    p1, p2, p3 = create_plugin_instances(conf5)
+    assert_match PATH_CHECK_REGEXP, p2.path
+    assert_match PATH_CHECK_REGEXP2, p3.path
+
+    conf6 = %[
+tag test.out
+path /path/to/file.%{uuid:random}.txt
+]
+    p1, p2, p3 = create_plugin_instances(conf6)
+    assert_match PATH_CHECK_REGEXP, p2.path
+    assert_match PATH_CHECK_REGEXP2, p3.path
   end
 
   PATH_CHECK_H_REGEXP = Regexp.compile('^/path/to/file\.[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}.log$')
   PATH_CHECK_H_REGEXP2 = Regexp.compile('^/PATH/TO/FILE\.[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}.LOG$')
 
+
   def test_uuid_hostname
     conf1 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.${uuid:hostname}.log
 ]
     p1, p2, p3 = create_plugin_instances(conf1)
     assert_match PATH_CHECK_H_REGEXP, p2.path
-    assert_equal '/path/to/file.87577bd5-6d8c-5dff-8988-0bc01cb8ed53.log', p2.path
+    assert_equal '/path/to/file.acc701f6-9be5-578b-9580-85ec8a505600.log', p2.path
     assert_match PATH_CHECK_H_REGEXP2, p3.path
-    assert_equal '/PATH/TO/FILE.87577BD5-6D8C-5DFF-8988-0BC01CB8ED53.LOG', p3.path
+    assert_equal '/PATH/TO/FILE.ACC701F6-9BE5-578B-9580-85EC8A505600.LOG', p3.path
 
     conf2 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.__UUID_HOSTNAME__.log
 ]
     p1, p2, p3 = create_plugin_instances(conf2)
     assert_match PATH_CHECK_H_REGEXP, p2.path
-    assert_equal '/path/to/file.87577bd5-6d8c-5dff-8988-0bc01cb8ed53.log', p2.path
+    assert_equal '/path/to/file.acc701f6-9be5-578b-9580-85ec8a505600.log', p2.path
     assert_match PATH_CHECK_H_REGEXP2, p3.path
-    assert_equal '/PATH/TO/FILE.87577BD5-6D8C-5DFF-8988-0BC01CB8ED53.LOG', p3.path
+    assert_equal '/PATH/TO/FILE.ACC701F6-9BE5-578B-9580-85EC8A505600.LOG', p3.path
+
+    conf3 = %[
+hostname testing.local
+tag test.out
+path /path/to/file.%{uuid:hostname}.log
+]
+    p1, p2, p3 = create_plugin_instances(conf3)
+    assert_match PATH_CHECK_H_REGEXP, p2.path
+    assert_equal '/path/to/file.acc701f6-9be5-578b-9580-85ec8a505600.log', p2.path
+    assert_match PATH_CHECK_H_REGEXP2, p3.path
+    assert_equal '/PATH/TO/FILE.ACC701F6-9BE5-578B-9580-85EC8A505600.LOG', p3.path
   end
 
   PATH_CHECK_T_REGEXP = Regexp.compile('^/path/to/file\.[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}.out$')
   PATH_CHECK_T_REGEXP2 = Regexp.compile('^/PATH/TO/FILE\.[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}.OUT$')
 
-  def test_uuid_hostname
+  def test_uuid_timestamp
     conf1 = %[
 tag test.out
 path /path/to/file.${uuid:timestamp}.out
@@ -123,9 +168,17 @@ path /path/to/file.${uuid:timestamp}.out
 
     conf2 = %[
 tag test.out
-path /path/to/file.__UUID_HOSTNAME__.out
+path /path/to/file.__UUID_TIMESTAMP__.out
 ]
     p1, p2, p3 = create_plugin_instances(conf2)
+    assert_match PATH_CHECK_T_REGEXP, p2.path
+    assert_match PATH_CHECK_T_REGEXP2, p3.path
+
+    conf3 = %[
+tag test.out
+path /path/to/file.%{uuid:timestamp}.out
+]
+    p1, p2, p3 = create_plugin_instances(conf3)
     assert_match PATH_CHECK_T_REGEXP, p2.path
     assert_match PATH_CHECK_T_REGEXP2, p3.path
   end

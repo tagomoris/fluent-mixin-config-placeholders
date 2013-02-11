@@ -4,11 +4,11 @@ Fluent::Mixin::ConfigPlaceHolders provide some placeholders to fluentd plugins t
 
 Available placeholders are:
 
-* hostname (${hostname} or \_\_HOSTNAME\_\_)
+* hostname (${hostname}, %{hostname} or \_\_HOSTNAME\_\_)
   * you can specify hostname string explicitly on 'hostname' parameter
-* random uuid (${uuid}, ${uuid:random}, \_\_UUID\_\_ or \_\_UUID\_RANDOM\_\_)
-* hostname string based uuid (${uuid:hostname} or \_\_UUID\_HOSTNAME\_\_)
-* timestamp based uuid (${uuid:timestamp} or \_\_UUID\_TIMESTAMP\_\_)
+* random uuid (${uuid}, ${uuid:random}, %{uuid}, %{uuid:random}, \_\_UUID\_\_ or \_\_UUID\_RANDOM\_\_)
+* hostname string based uuid (${uuid:hostname}, %{uuid:hostname} or \_\_UUID\_HOSTNAME\_\_)
+* timestamp based uuid (${uuid:timestamp} %{uuid:timestamp} or \_\_UUID\_TIMESTAMP\_\_)
 
 ## Usage
 
