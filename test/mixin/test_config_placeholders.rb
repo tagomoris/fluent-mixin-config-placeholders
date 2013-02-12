@@ -30,6 +30,17 @@ path POSPOSPOS ${hostname} MOGEMOGE
     assert_equal [], p.conf.used
   end
 
+  def test_default
+    conf = %[
+hostname testing
+tag ${hostname}.%{hostname}.__HOSTNAME__
+path /${hostname}/%{hostname}/__HOSTNAME__.log
+]
+    p = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTestDefaultInput).configure(conf).instance
+    assert_equal 'testing.%{hostname}.testing', p.tag
+    assert_equal '/testing/%{hostname}/testing.log', p.path
+  end
+
   def test_hostname
     conf1 = %[
 hostname testing.local

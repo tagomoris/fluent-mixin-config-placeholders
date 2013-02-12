@@ -6,6 +6,8 @@ module Fluent
     module ConfigPlaceholders
       attr_accessor :hostname
 
+      PLACEHOLDERS_DEFAULT = [ :dollar, :underscore ] # and :percent
+
       # ${hostname}, %{hostname}, __HOSTNAME__
 
       # ${uuid} or ${uuid:random} , %{uuid} or %{uuid:random} __UUID__ or __UUID_RANDOM__
@@ -40,23 +42,40 @@ module Fluent
         # Element#has_key? inserts key name into 'used' list, so we should escape that method...
         hostname = conf.keys.include?('hostname') ? conf['hostname'] : `hostname`.chomp
 
-        mapping = {
-          '${hostname}'  => lambda{ hostname },
-          '%{hostname}'  => lambda{ hostname },
-          '__HOSTNAME__' => lambda{ hostname },
-          '${uuid}'         => lambda{ uuid_random() },
-          '%{uuid}'         => lambda{ uuid_random() },
-          '__UUID__'        => lambda{ uuid_random() },
-          '${uuid:random}'  => lambda{ uuid_random() },
-          '%{uuid:random}'  => lambda{ uuid_random() },
-          '__UUID_RANDOM__' => lambda{ uuid_random() },
-          '${uuid:hostname}'  => lambda { uuid_hostname(hostname) },
-          '%{uuid:hostname}'  => lambda { uuid_hostname(hostname) },
-          '__UUID_HOSTNAME__' => lambda { uuid_hostname(hostname) },
-          '${uuid:timestamp}'  => lambda { uuid_timestamp() },
-          '%{uuid:timestamp}'  => lambda { uuid_timestamp() },
-          '__UUID_TIMESTAMP__' => lambda { uuid_timestamp() },
-        }
+        placeholders = self.respond_to?(:placeholders) ? self.placeholders : PLACEHOLDERS_DEFAULT
+
+        mapping = {}
+
+        placeholders.each do |p|
+          case p
+          when :dollar
+            mapping.update({
+                '${hostname}'       => lambda{ hostname },
+                '${uuid}'           => lambda{ uuid_random() },
+                '${uuid:random}'    => lambda{ uuid_random() },
+                '${uuid:hostname}'  => lambda{ uuid_hostname(hostname) },
+                '${uuid:timestamp}' => lambda{ uuid_timestamp() },
+              })
+          when :percent
+            mapping.update({
+                '%{hostname}'       => lambda{ hostname },
+                '%{uuid}'           => lambda{ uuid_random() },
+                '%{uuid:random}'    => lambda{ uuid_random() },
+                '%{uuid:hostname}'  => lambda{ uuid_hostname(hostname) },
+                '%{uuid:timestamp}' => lambda{ uuid_timestamp() },
+              })
+          when :underscore
+            mapping.update({
+                '__HOSTNAME__'       => lambda{ hostname },
+                '__UUID__'           => lambda{ uuid_random() },
+                '__UUID_RANDOM__'    => lambda{ uuid_random() },
+                '__UUID_HOSTNAME__'  => lambda{ uuid_hostname(hostname) },
+                '__UUID_TIMESTAMP__' => lambda{ uuid_timestamp() },
+              })
+          else
+            raise ArgumentError, "unknown placeholder format: #{p}"
+          end
+        end
 
         def check_element(map,c)
           c.arg = replace(map, c.arg)
