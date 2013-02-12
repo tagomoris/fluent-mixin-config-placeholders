@@ -2,6 +2,8 @@
 
 Fluent::Mixin::ConfigPlaceHolders provide some placeholders to fluentd plugins that includes this mix-in. Placeholders below are expanded in 'super' of including plugin's #configure method.
 
+Placeholder patterns are `${..}` and `__XXX__`. With optional setting in plugin code, `%{...}` is available.
+
 Available placeholders are:
 
 * hostname (${hostname}, %{hostname} or \_\_HOSTNAME\_\_)
@@ -32,9 +34,31 @@ In plugin (both of input and output), just include mixin.
 
 You can use this feature for tags for each fluentd node, paths for remote storage services like /root/${hostname}/access_log or non-race-condition paths like /files/${uuid:random}.
 
+### Plugin setting
+
+Plugin can determine which placeholders are enabled in their configurations, like this:
+
+    class FooInput < Fluent::Input
+      # ....
+      
+      # instance method #placeholders should return array of symbols
+      
+      def placeholders
+        [:dollar, :percentage, :underscore]
+      end
+      
+      # default is [:dollar, :underscore]
+      
+      include Fluent::Mixin::ConfigPlaceholders
+      
+      # ....
+    end
+
 ## AUTHORS
 
 * TAGOMORI Satoshi <tagomoris@gmail.com>
+* Contributors
+  * @ijin
 
 ## LICENSE
 
