@@ -44,7 +44,7 @@ Plugin can determine which placeholders are enabled in their configurations, lik
       # instance method #placeholders should return array of symbols
       
       def placeholders
-        [:dollar, :percentage, :underscore]
+        [:dollar, :percent, :underscore]
       end
       
       # default is [:dollar, :underscore]
@@ -58,7 +58,7 @@ Plugin can determine which placeholders are enabled in their configurations, lik
 
 * TAGOMORI Satoshi <tagomoris@gmail.com>
 * Contributors
-  * @ijin
+  * [@ijin](https://twitter.com/ijin) (Michael H. Oshita)
 
 ## LICENSE
 
