@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name          = "fluent-mixin-config-placeholders"
-  gem.version       = "0.2.2"
+  gem.version       = "0.2.3"
   gem.authors       = ["TAGOMORI Satoshi"]
   gem.email         = ["tagomoris@gmail.com"]
   gem.description   = %q{to add various placeholders for plugin configurations}
@@ -13,8 +13,6 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_development_dependency "fluentd"
-  gem.add_development_dependency "uuidtools"
   gem.add_runtime_dependency "fluentd"
   gem.add_runtime_dependency "uuidtools"
 end
