@@ -7,6 +7,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{to add various placeholders for plugin configurations}
   gem.summary       = %q{Configuration syntax extension mixin for fluentd plugin}
   gem.homepage      = "https://github.com/tagomoris/fluent-mixin-config-placeholders"
+  gem.license       = "APLv2"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
