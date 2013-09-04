@@ -8,26 +8,27 @@ class ConfigPlaceholdersTest < Test::Unit::TestCase
   end
 
   def test_unused
+    # 'id' used by Fluentd core as plugin id...
     conf = %[
 tag HOGE
 path POSPOSPOS
 ]
     p = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTest2Input).configure(conf).instance
-    assert_equal ['tag','path'], p.conf.used
+    assert_equal ['id', 'tag','path'], p.conf.used
 
     conf = %[
 tag HOGE
 path POSPOSPOS
 ]
     p = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTestXInput).configure(conf).instance
-    assert_equal [], p.conf.used
+    assert_equal ['id'], p.conf.used
 
     conf = %[
 tag HOGE
 path POSPOSPOS ${hostname} MOGEMOGE
 ]
     p = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTestXInput).configure(conf).instance
-    assert_equal [], p.conf.used
+    assert_equal ['id'], p.conf.used
   end
 
   def test_default
