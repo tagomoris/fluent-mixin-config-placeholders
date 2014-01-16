@@ -48,6 +48,7 @@ class Fluent::ConfigPlaceholdersTest2Input < Fluent::Input
 
   config_param :tag, :string
   config_param :path, :string
+  config_param :hostname, :string
 
   include Fluent::Mixin::ConfigPlaceholders
 
