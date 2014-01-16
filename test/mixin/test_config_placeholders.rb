@@ -3,18 +3,30 @@ require 'helper'
 class ConfigPlaceholdersTest < Test::Unit::TestCase
   def create_plugin_instances(conf)
     [
-      Fluent::ConfigPlaceholdersTest0Input, Fluent::ConfigPlaceholdersTest1Input, Fluent::ConfigPlaceholdersTest2Input
+      Fluent::ConfigPlaceholdersTest0Input, Fluent::ConfigPlaceholdersTest1Input,
+      Fluent::ConfigPlaceholdersTest2Input, Fluent::ConfigPlaceholdersTest3Input
     ].map{|klass| Fluent::Test::InputTestDriver.new(klass).configure(conf).instance }
   end
 
   def test_unused
     # 'id' used by Fluentd core as plugin id...
     conf = %[
+hostname HOGENAME
+]
+    p = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTest3Input).configure(conf).instance
+    assert_equal 'HOGENAME', p.hostname
+    assert_equal ['hostname', 'id', 'hostname'], p.conf.used
+
+    conf = %[
+hostname HOGENAME
 tag HOGE
 path POSPOSPOS
 ]
     p = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTest2Input).configure(conf).instance
-    assert_equal ['id', 'tag','path'], p.conf.used
+    assert_equal 'HOGENAME', p.hostname
+    assert_equal 'HOGE', p.tag
+    assert_equal 'POSPOSPOS', p.path
+    assert_equal ['hostname', 'id', 'tag', 'path', 'hostname'], p.conf.used
 
     conf = %[
 tag HOGE
@@ -48,8 +60,7 @@ hostname testing.local
 tag out.${hostname}
 path /path/to/file.__HOSTNAME__.txt
 ]
-    p1, p2, p3 = create_plugin_instances(conf1)
-
+    p1, p2, p3, p4 = create_plugin_instances(conf1)
     assert_equal 'out.${hostname}', p1.tag
     assert_equal 'out.testing.local', p2.tag
     assert_equal 'out.testing.local', p3.tag
@@ -58,12 +69,14 @@ path /path/to/file.__HOSTNAME__.txt
     assert_equal '/path/to/file.testing.local.txt', p2.path
     assert_equal '/PATH/TO/FILE.TESTING.LOCAL.TXT', p3.path
 
+    assert_equal 'testing.local', p4.hostname
+
     conf2 = %[
 hostname testing.local
 tag out.%{hostname}
 path /path/to/file.%{hostname}.txt
 ]
-    p1, p2, p3 = create_plugin_instances(conf2)
+    p1, p2, p3, p4 = create_plugin_instances(conf2)
 
     assert_equal 'out.%{hostname}', p1.tag
     assert_equal 'out.testing.local', p2.tag
@@ -72,6 +85,8 @@ path /path/to/file.%{hostname}.txt
     assert_equal '/path/to/file.%{hostname}.txt', p1.path
     assert_equal '/path/to/file.testing.local.txt', p2.path
     assert_equal '/PATH/TO/FILE.TESTING.LOCAL.TXT', p3.path
+
+    assert_equal 'testing.local', p4.hostname
   end
 
   PATH_CHECK_REGEXP = Regexp.compile('^/path/to/file\.[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}.txt$')
@@ -79,6 +94,7 @@ path /path/to/file.%{hostname}.txt
 
   def test_uuid_random
     conf1 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.${uuid}.txt
 ]
@@ -87,6 +103,7 @@ path /path/to/file.${uuid}.txt
     assert_match PATH_CHECK_REGEXP2, p3.path
 
     conf2 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.${uuid:random}.txt
 ]
@@ -95,6 +112,7 @@ path /path/to/file.${uuid:random}.txt
     assert_match PATH_CHECK_REGEXP2, p3.path
 
     conf3 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.__UUID__.txt
 ]
@@ -103,6 +121,7 @@ path /path/to/file.__UUID__.txt
     assert_match PATH_CHECK_REGEXP2, p3.path
 
     conf4 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.__UUID__.txt
 ]
@@ -111,6 +130,7 @@ path /path/to/file.__UUID__.txt
     assert_match PATH_CHECK_REGEXP2, p3.path
 
     conf5 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.%{uuid}.txt
 ]
@@ -119,6 +139,7 @@ path /path/to/file.%{uuid}.txt
     assert_match PATH_CHECK_REGEXP2, p3.path
 
     conf6 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.%{uuid:random}.txt
 ]
@@ -137,7 +158,7 @@ hostname testing.local
 tag test.out
 path /path/to/file.${uuid:hostname}.log
 ]
-    p1, p2, p3 = create_plugin_instances(conf1)
+    p1, p2, p3, p4 = create_plugin_instances(conf1)
     assert_match PATH_CHECK_H_REGEXP, p2.path
     assert_equal '/path/to/file.acc701f6-9be5-578b-9580-85ec8a505600.log', p2.path
     assert_match PATH_CHECK_H_REGEXP2, p3.path
@@ -171,6 +192,7 @@ path /path/to/file.%{uuid:hostname}.log
 
   def test_uuid_timestamp
     conf1 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.${uuid:timestamp}.out
 ]
@@ -179,6 +201,7 @@ path /path/to/file.${uuid:timestamp}.out
     assert_match PATH_CHECK_T_REGEXP2, p3.path
 
     conf2 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.__UUID_TIMESTAMP__.out
 ]
@@ -187,6 +210,7 @@ path /path/to/file.__UUID_TIMESTAMP__.out
     assert_match PATH_CHECK_T_REGEXP2, p3.path
 
     conf3 = %[
+hostname testing.local
 tag test.out
 path /path/to/file.%{uuid:timestamp}.out
 ]
