@@ -48,6 +48,7 @@ class Fluent::ConfigPlaceholdersTest2Input < Fluent::Input
 
   config_param :tag, :string
   config_param :path, :string
+  config_param :hostname, :string
 
   include Fluent::Mixin::ConfigPlaceholders
 
@@ -58,6 +59,23 @@ class Fluent::ConfigPlaceholdersTest2Input < Fluent::Input
     super
 
     @path.upcase!
+
+    @conf = conf
+  end
+end
+
+class Fluent::ConfigPlaceholdersTest3Input < Fluent::Input
+  Fluent::Plugin.register_input('config_placeholder_test_3', self)
+
+  config_param :hostname, :string
+
+  include Fluent::Mixin::ConfigPlaceholders
+
+  attr_accessor :conf
+
+  def placeholders; [:dollar, :percent, :underscore]; end
+  def configure(conf)
+    super
 
     @conf = conf
   end

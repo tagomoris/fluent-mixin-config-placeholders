@@ -39,8 +39,7 @@ module Fluent
       end
 
       def configure(conf)
-        # Element#has_key? inserts key name into 'used' list, so we should escape that method...
-        hostname = conf.keys.include?('hostname') ? conf['hostname'] : `hostname`.chomp
+        hostname_data = conf.keys.include?('hostname_data') ? conf['hostname_data'] : `hostname`.chomp
 
         placeholders = self.respond_to?(:placeholders) ? self.placeholders : PLACEHOLDERS_DEFAULT
 
@@ -50,26 +49,26 @@ module Fluent
           case p
           when :dollar
             mapping.update({
-                '${hostname}'       => lambda{ hostname },
+                '${hostname}'       => lambda{ hostname_data },
                 '${uuid}'           => lambda{ uuid_random() },
                 '${uuid:random}'    => lambda{ uuid_random() },
-                '${uuid:hostname}'  => lambda{ uuid_hostname(hostname) },
+                '${uuid:hostname}'  => lambda{ uuid_hostname(hostname_data) },
                 '${uuid:timestamp}' => lambda{ uuid_timestamp() },
               })
           when :percent
             mapping.update({
-                '%{hostname}'       => lambda{ hostname },
+                '%{hostname}'       => lambda{ hostname_data },
                 '%{uuid}'           => lambda{ uuid_random() },
                 '%{uuid:random}'    => lambda{ uuid_random() },
-                '%{uuid:hostname}'  => lambda{ uuid_hostname(hostname) },
+                '%{uuid:hostname}'  => lambda{ uuid_hostname(hostname_data) },
                 '%{uuid:timestamp}' => lambda{ uuid_timestamp() },
               })
           when :underscore
             mapping.update({
-                '__HOSTNAME__'       => lambda{ hostname },
+                '__HOSTNAME__'       => lambda{ hostname_data },
                 '__UUID__'           => lambda{ uuid_random() },
                 '__UUID_RANDOM__'    => lambda{ uuid_random() },
-                '__UUID_HOSTNAME__'  => lambda{ uuid_hostname(hostname) },
+                '__UUID_HOSTNAME__'  => lambda{ uuid_hostname(hostname_data) },
                 '__UUID_TIMESTAMP__' => lambda{ uuid_timestamp() },
               })
           else
