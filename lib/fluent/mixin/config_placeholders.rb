@@ -4,7 +4,7 @@ require 'uuidtools'
 module Fluent
   module Mixin
     module ConfigPlaceholders
-      attr_accessor :myhostname
+      attr_accessor :hostname
 
       PLACEHOLDERS_DEFAULT = [ :dollar, :underscore, :percent ]
 
@@ -26,8 +26,8 @@ module Fluent
         UUIDTools::UUID.random_create.to_s
       end
 
-      def uuid_hostname(myhostname)
-        UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, myhostname).to_s
+      def uuid_hostname(hostname)
+        UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, hostname).to_s
       end
 
       def uuid_timestamp
@@ -40,15 +40,10 @@ module Fluent
 
       def configure(conf)
         if conf.keys.include?('hostname')
-          case conf['hostname']
-          when '${hostname}'
-            myhostname = `hostname`.chomp
-          when '%{hostname}'
-            myhostname = `hostname`.chomp
-          when '__HOSTNAME__'
-            myhostname = `hostname`.chomp
+          if conf['hostname'] =~ /(\$|\%)\{hostname\}|__HOSTNAME__/
+            hostname = `hostname`.chomp
           else
-            myhostname = conf['hostname']
+            hostname = conf['hostname']
           end
         end
 
@@ -60,26 +55,26 @@ module Fluent
           case p
           when :dollar
             mapping.update({
-                '${hostname}'       => lambda{ myhostname },
+                '${hostname}'       => lambda{ hostname },
                 '${uuid}'           => lambda{ uuid_random() },
                 '${uuid:random}'    => lambda{ uuid_random() },
-                '${uuid:hostname}'  => lambda{ uuid_hostname(myhostname) },
+                '${uuid:hostname}'  => lambda{ uuid_hostname(hostname) },
                 '${uuid:timestamp}' => lambda{ uuid_timestamp() },
               })
           when :percent
             mapping.update({
-                '%{hostname}'       => lambda{ myhostname },
+                '%{hostname}'       => lambda{ hostname },
                 '%{uuid}'           => lambda{ uuid_random() },
                 '%{uuid:random}'    => lambda{ uuid_random() },
-                '%{uuid:hostname}'  => lambda{ uuid_hostname(myhostname) },
+                '%{uuid:hostname}'  => lambda{ uuid_hostname(hostname) },
                 '%{uuid:timestamp}' => lambda{ uuid_timestamp() },
               })
           when :underscore
             mapping.update({
-                '__HOSTNAME__'       => lambda{ myhostname },
+                '__HOSTNAME__'       => lambda{ hostname },
                 '__UUID__'           => lambda{ uuid_random() },
                 '__UUID_RANDOM__'    => lambda{ uuid_random() },
-                '__UUID_HOSTNAME__'  => lambda{ uuid_hostname(myhostname) },
+                '__UUID_HOSTNAME__'  => lambda{ uuid_hostname(hostname) },
                 '__UUID_TIMESTAMP__' => lambda{ uuid_timestamp() },
               })
           else
