@@ -6,7 +6,7 @@ module Fluent
     module ConfigPlaceholders
       attr_accessor :hostname
 
-      PLACEHOLDERS_DEFAULT = [ :dollar, :underscore ] # and :percent
+      PLACEHOLDERS_DEFAULT = [ :dollar, :underscore, :percent ]
 
       # ${hostname}, %{hostname}, __HOSTNAME__
 
@@ -39,8 +39,13 @@ module Fluent
       end
 
       def configure(conf)
-        # Element#has_key? inserts key name into 'used' list, so we should escape that method...
-        hostname = conf.keys.include?('hostname') ? conf['hostname'] : `hostname`.chomp
+        if conf.keys.include?('hostname')
+          if conf['hostname'] =~ /(\$|\%)\{hostname\}|__HOSTNAME__/
+            hostname = `hostname`.chomp
+          else
+            hostname = conf['hostname']
+          end
+        end
 
         placeholders = self.respond_to?(:placeholders) ? self.placeholders : PLACEHOLDERS_DEFAULT
 

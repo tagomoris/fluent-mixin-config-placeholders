@@ -14,6 +14,7 @@ class Fluent::ConfigPlaceholdersTestDefaultInput < Fluent::Input
 
   config_param :tag, :string
   config_param :path, :string
+  config_param :hostname, :string
 
   include Fluent::Mixin::ConfigPlaceholders
 end
@@ -23,6 +24,7 @@ class Fluent::ConfigPlaceholdersTest0Input < Fluent::Input
 
   config_param :tag, :string
   config_param :path, :string
+  config_param :hostname, :string
 
   attr_accessor :conf
 
@@ -38,6 +40,7 @@ class Fluent::ConfigPlaceholdersTest1Input < Fluent::Input
 
   config_param :tag, :string
   config_param :path, :string
+  config_param :hostname, :string
 
   def placeholders; [:dollar, :percent, :underscore]; end
   include Fluent::Mixin::ConfigPlaceholders
@@ -48,16 +51,18 @@ class Fluent::ConfigPlaceholdersTest2Input < Fluent::Input
 
   config_param :tag, :string
   config_param :path, :string
+  config_param :hostname, :string
 
+  def placeholders; [:dollar, :percent, :underscore]; end
   include Fluent::Mixin::ConfigPlaceholders
 
   attr_accessor :conf
 
-  def placeholders; [:dollar, :percent, :underscore]; end
   def configure(conf)
     super
 
     @path.upcase!
+    @hostname.upcase!
 
     @conf = conf
   end
