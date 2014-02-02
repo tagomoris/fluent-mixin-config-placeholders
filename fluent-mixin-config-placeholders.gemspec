@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name          = "fluent-mixin-config-placeholders"
-  gem.version       = "0.2.3"
+  gem.version       = "0.2.4"
   gem.authors       = ["TAGOMORI Satoshi"]
   gem.email         = ["tagomoris@gmail.com"]
   gem.description   = %q{to add various placeholders for plugin configurations}
