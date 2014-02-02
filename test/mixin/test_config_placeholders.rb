@@ -221,4 +221,51 @@ path /path/to/file.log
     assert_equal "value.1." + uuid, p3.conf.elements.first.elements[0]['field']
     assert_equal "value.2." + uuid, p3.conf.elements.first.elements[1]['field']
   end
+
+  def test_value_has_replace_pattern?
+    conf1 = %[
+hostname test.host.local
+attr1    ${hostname}
+]
+    p1 = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTest3Input).configure(conf1).instance
+
+    assert p1.has_replace_pattern?('foo.__HOSTNAME__')
+    assert p1.has_replace_pattern?('foo.__UUID_RANDOM__')
+    assert p1.has_replace_pattern?('foo.__UUID_HOSTNAME__')
+    assert p1.has_replace_pattern?('foo.__UUID_TIMESTAMP__')
+    assert p1.has_replace_pattern?('foo.${hostname}.local')
+    assert p1.has_replace_pattern?('foo.${uuid:random}.local')
+    assert p1.has_replace_pattern?('foo.${uuid:hostname}.local')
+    assert p1.has_replace_pattern?('foo.${uuid:timestamp}.local')
+    assert p1.has_replace_pattern?('%{hostname}.local')
+    assert p1.has_replace_pattern?('%{uuid:random}.local')
+    assert p1.has_replace_pattern?('%{uuid:hostname}.local')
+    assert p1.has_replace_pattern?('%{uuid:timestamp}.local')
+  end
+
+  def test_attribute_hostname
+    # this configuration pattern is to set hostname itself
+    #  - @hostname should be set as 'test.host.local'
+    #  - @attr1 should be set as 'test.host.local'
+    conf1 = %[
+hostname test.host.local
+attr1    ${hostname}
+]
+    p1 = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTest3Input).configure(conf1).instance
+    assert_equal "test.host.local", p1.hostname
+    assert_equal "test.host.local", p1.attr1
+
+    # this configuration pattern is to set hostname-attribute of plugins
+    #  when 'myhostname' is host name (result of `hostname` shell command),
+    #  - @hostname is set as 'myhostname.fluentd.local'
+    #  - @attr1 should be set as 'myhostname' only, it is default of mixin
+    conf2 = %[
+hostname ${hostname}.fluentd.local
+attr1    __HOSTNAME__
+]
+    p2 = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTest3Input).configure(conf2).instance
+    hostname_cmd = `hostname`.chomp
+    assert_equal "#{hostname_cmd}.fluentd.local", p2.hostname
+    assert_equal hostname_cmd, p2.attr1
+  end
 end

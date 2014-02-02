@@ -38,9 +38,21 @@ module Fluent
         map.reduce(value){|r,p| r.gsub(p[0], p[1].call())}
       end
 
+      def has_replace_pattern?(value)
+        value =~ /\$\{(?:hostname|uuid:[a-z]+)\}/ ||
+          value =~ /\%\{(?:hostname|uuid:[a-z]+)\}/ ||
+          value =~ /__(?:HOSTNAME|UUID_[A-Z]+)__/
+      end
+
       def configure(conf)
-        # Element#has_key? inserts key name into 'used' list, so we should escape that method...
-        hostname = conf.keys.include?('hostname') ? conf['hostname'] : `hostname`.chomp
+        # Element#has_key? inserts key name into 'used' list, so we should not use that method...
+        hostname = if conf.keys.include?('hostname') && has_replace_pattern?( conf.fetch('hostname') )
+                     `hostname`.chomp
+                   elsif conf.keys.include?('hostname')
+                     conf['hostname']
+                   else
+                     `hostname`.chomp
+                   end
 
         placeholders = self.respond_to?(:placeholders) ? self.placeholders : PLACEHOLDERS_DEFAULT
 

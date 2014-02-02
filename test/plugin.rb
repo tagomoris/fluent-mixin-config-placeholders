@@ -62,3 +62,20 @@ class Fluent::ConfigPlaceholdersTest2Input < Fluent::Input
     @conf = conf
   end
 end
+
+class Fluent::ConfigPlaceholdersTest3Input < Fluent::Input
+  Fluent::Plugin.register_input('config_placeholder_test_2', self)
+
+  config_param :hostname, :string
+  config_param :attr1, :string
+
+  include Fluent::Mixin::ConfigPlaceholders
+
+  attr_accessor :conf
+
+  def placeholders; [:dollar, :percent, :underscore]; end
+  def configure(conf)
+    super
+    @conf = conf
+  end
+end
