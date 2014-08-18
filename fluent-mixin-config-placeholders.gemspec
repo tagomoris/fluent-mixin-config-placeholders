@@ -15,6 +15,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_runtime_dependency "fluentd"
-  gem.add_runtime_dependency "uuidtools"
+  gem.add_runtime_dependency "uuidtools", ">= 2.1.5"
   gem.add_development_dependency "rake"
 end
