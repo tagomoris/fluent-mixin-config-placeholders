@@ -1,5 +1,6 @@
 require 'fluent/config'
 require 'uuidtools'
+require 'socket'
 
 module Fluent
   module Mixin
@@ -47,11 +48,11 @@ module Fluent
       def configure(conf)
         # Element#has_key? inserts key name into 'used' list, so we should not use that method...
         hostname = if conf.keys.include?('hostname') && has_replace_pattern?( conf.fetch('hostname') )
-                     `hostname`.chomp
+                     Socket.gethostname
                    elsif conf.keys.include?('hostname')
                      conf['hostname']
                    else
-                     `hostname`.chomp
+                     Socket.gethostname
                    end
 
         placeholders = self.respond_to?(:placeholders) ? self.placeholders : PLACEHOLDERS_DEFAULT
