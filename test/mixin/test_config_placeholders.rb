@@ -1,6 +1,10 @@
 require 'helper'
 
 class ConfigPlaceholdersTest < Test::Unit::TestCase
+  def setup
+    Fluent::Test.setup
+  end
+
   def create_plugin_instances(conf)
     [
       Fluent::ConfigPlaceholdersTest0Input, Fluent::ConfigPlaceholdersTest1Input, Fluent::ConfigPlaceholdersTest2Input
