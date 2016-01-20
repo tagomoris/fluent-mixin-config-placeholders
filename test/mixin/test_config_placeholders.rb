@@ -1,6 +1,11 @@
 require 'helper'
+require 'socket'
 
 class ConfigPlaceholdersTest < Test::Unit::TestCase
+  def setup
+    Fluent::Test.setup
+  end
+
   def create_plugin_instances(conf)
     [
       Fluent::ConfigPlaceholdersTest0Input, Fluent::ConfigPlaceholdersTest1Input, Fluent::ConfigPlaceholdersTest2Input
@@ -256,7 +261,7 @@ attr1    ${hostname}
     assert_equal "test.host.local", p1.attr1
 
     # this configuration pattern is to set hostname-attribute of plugins
-    #  when 'myhostname' is host name (result of `hostname` shell command),
+    #  when 'myhostname' is host name (result of Socket.gethostname),
     #  - @hostname is set as 'myhostname.fluentd.local'
     #  - @attr1 should be set as 'myhostname' only, it is default of mixin
     conf2 = %[
@@ -264,7 +269,7 @@ hostname ${hostname}.fluentd.local
 attr1    __HOSTNAME__
 ]
     p2 = Fluent::Test::InputTestDriver.new(Fluent::ConfigPlaceholdersTest3Input).configure(conf2).instance
-    hostname_cmd = `hostname`.chomp
+    hostname_cmd = Socket.gethostname
     assert_equal "#{hostname_cmd}.fluentd.local", p2.hostname
     assert_equal hostname_cmd, p2.attr1
   end
