@@ -23,6 +23,7 @@ unless ENV.has_key?('VERBOSE')
   $log = nulllogger
 end
 
+require 'fluent/input'
 require 'fluent/mixin/config_placeholders'
 require_relative 'plugin'
 
