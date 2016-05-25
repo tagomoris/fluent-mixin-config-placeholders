@@ -218,7 +218,7 @@ path /path/to/file.log
     require 'uuidtools'
     uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, "test.host.local").to_s
 
-    p1, p2, p3 = create_plugin_instances(conf)
+    _p1, _p2, p3 = create_plugin_instances(conf)
     assert_equal "config", p3.conf.elements.first.name
     assert_equal "test.host.local", p3.conf.elements.first.arg
     assert_equal "val1." + uuid, p3.conf.elements.first['var']
