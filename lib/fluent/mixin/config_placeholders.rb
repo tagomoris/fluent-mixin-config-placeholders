@@ -90,7 +90,7 @@ module Fluent
           end
         end
 
-        def check_element(map,c)
+        def check_element_override(map,c)
           c.arg = replace(map, c.arg)
           c.keys.each do |k|
             v = c.fetch(k, nil)
@@ -101,7 +101,9 @@ module Fluent
           c.elements.each{|e| check_element(map,e)}
         end
 
-        check_element(mapping,conf)
+        check_element_override(mapping,conf)
+
+        alias :check_element :check_element_override
 
         super
       end
