@@ -1,5 +1,4 @@
 require 'fluent/config'
-require 'uuidtools'
 require 'socket'
 
 module Fluent
@@ -24,14 +23,17 @@ module Fluent
       # => #<UUID:0x2adfdc UUID:64a5189c-25b3-11da-a97b-00c04fd430c8>
 
       def uuid_random
+        require 'uuidtools'
         UUIDTools::UUID.random_create.to_s
       end
 
       def uuid_hostname(hostname)
+        require 'uuidtools'
         UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, hostname).to_s
       end
 
       def uuid_timestamp
+        require 'uuidtools'
         UUIDTools::UUID.timestamp_create.to_s
       end
 
